@@ -1,0 +1,220 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Navigation Styling */
+nav {
+    width: 250px;
+    background-color: #1e1e2f;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+nav .logo img {
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+nav ul {
+    list-style: none;
+    width: 100%;
+    padding: 0 20px;
+}
+
+nav ul li {
+    margin: 20px 0;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+}
+
+nav ul li a:hover {
+    color: #ffa500;
+}
+
+nav .profile {
+    margin-top: auto;
+    text-align: center;
+}
+
+nav .profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+nav .profile span {
+    display: block;
+    font-size: 16px;
+}
+
+/* Main Content Styling */
+main {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f4f4f9;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+header input[type="search"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 300px;
+}
+
+header button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #1e1e2f;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+header button:hover {
+    background-color: #ffa500;
+}
+
+.welcome-message {
+    margin-bottom: 20px;
+}
+
+.welcome-message h1 {
+    font-size: 24px;
+}
+
+/* Content Section Styling */
+.content {
+    display: flex;
+    gap: 20px;
+}
+
+.calendrier, .sidebar {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.calendrier {
+    flex: 3;
+}
+
+.calendrier img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.classement h2, .notes h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+thead th {
+    background-color: #1e1e2f;
+    color: white;
+    padding: 10px;
+}
+
+tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.notes button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #1e1e2f;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.notes button:hover {
+    background-color: #ffa500;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    nav {
+        width: 100%;
+        height: auto;
+    }
+
+    nav ul {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header input[type="search"] {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    header button {
+        width: 100%;
+    }
+
+    .content {
+        flex-direction: column;
+    }
+
+    .calendrier, .sidebar {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .welcome-message h1 {
+        font-size: 18px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+}
