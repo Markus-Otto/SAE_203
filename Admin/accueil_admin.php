@@ -48,6 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['supprimer'])) {
 $result = $conn->query('SELECT ID_utilisateur, nom, prenom, TD, TP, annee FROM etudiant');
 $etudiants = $result->fetch_all(MYSQLI_ASSOC);
 ?>
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -113,6 +120,51 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                                 <td>
                                     <form action="accueil_admin.php" method="post" style="display:inline;">
                                         <input type="hidden" name="id" value="<?php echo $etudiant['ID_utilisateur']; ?>">
+                                        <button type="submit" name="supprimer">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6">Aucun étudiant trouvé.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <h1>Gestion des comptes</h1>
+        <div class="content">
+            <div class="form-section">
+                <h2>Saisie enseignant</h2>
+                <form action="accueil_admin.php" method="post">
+                <input type="text" name="id" id="id" placeholder="ID de l'enseignant" required>
+                    <input type="text" name="nom" id="nom" placeholder="Nom" required>
+                    <input type="text" name="prenom" id="prenom" placeholder="Prénom" required>
+                    <button type="submit" name="envoyer">Envoyer</button>
+                    <button type="reset">Effacer</button>
+                </form>
+            </div>
+            <div class="update-section">
+                <h2>Mis à jour des enseignant</h2>
+                <div class="student-list">
+                    <table>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Actions</th>
+                        </tr>
+                        <?php if ($etudiants): ?>
+                            <?php foreach ($etudiants as $etudiant): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($etudiant['	ID_enseignant']); ?></td>
+                                <td><?php echo htmlspecialchars($etudiant['nom']); ?></td>
+                                <td><?php echo htmlspecialchars($etudiant['prenom']); ?></td>
+                                <td>
+                                    <form action="accueil_admin.php" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="<?php echo $etudiant['ID_enseignant']; ?>">
                                         <button type="submit" name="supprimer">Supprimer</button>
                                     </form>
                                 </td>
