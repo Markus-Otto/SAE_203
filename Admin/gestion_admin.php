@@ -10,7 +10,7 @@ if (isset($_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['a
     
     // Lier les paramètres
     $stmt->bindParam(':nom', $_POST['nom']);
-    $stmt->bindParam(':Prenom', $_POST['Prenos']);
+    $stmt->bindParam(':Prenom', $_POST['Prenon']);
     $stmt->bindParam(':TD	', $_POST['TD	']);
     $stmt->bindParam(':TP', $_POST['TP']);
     $stmt->bindParam(':annee', $_POST['annee']);
