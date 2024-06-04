@@ -34,14 +34,14 @@
                     <input type="text" name="tp" id="tp" placeholder="TP" required>
                     <input type="text" name="Td" id="td" placeholder="TD" required>
                     <input type="text" name="annee_univ" id="anne" placeholder="Année univ" required>
-                    <button onclick="envoyer"></button>
+                    <button onclick="envoyer()"></button>
                     <button type="reset">Effacer</button>
                 </form>
             </div>
             <div class="update-section">
                 <h2>Mis à jour des étudiant</h2>
                 <div class="student-list">
-                    <?php include 'list_students.php'; ?>
+                    <?php include 'gestion_admin.php'; ?>
                 </div>
             </div>
         </div>
