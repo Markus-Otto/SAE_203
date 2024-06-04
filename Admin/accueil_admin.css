@@ -180,3 +180,7 @@ form button[type="reset"]:hover {
 .student-list button:hover {
     background-color: #2980B9;
 }
+
+a{
+    text-decoration: none;
+}

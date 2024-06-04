@@ -5,12 +5,12 @@ include "fnct_conn.php";
 $conn = connexion();
 
 function envoyer($conn) {
-    if (isset($_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee'])) {
-        $requete = 'INSERT INTO etudiant (nom, prenom, TD, TP, annee) VALUES (?, ?, ?, ?, ?)';
+    if (isset($_POST['id'], $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee'])) {
+        $requete = 'INSERT INTO etudiant (ID_utilisateur, nom, prenom, TD, TP, annee) VALUES (?,?, ?, ?, ?, ?)';
         $stmt = $conn->prepare($requete);
         
         // Lier les paramètres
-        $stmt->bind_param('sssss', $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee']);
+        $stmt->bind_param('ssssss',$_POST['id'], $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee']);
         
         // Exécuter la requête
         if ($stmt->execute()) {
@@ -61,9 +61,8 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
     <div class="sidebar">
         <div class="logo">EIFFEL NOTE</div>
         <div class="menu">
-            <div>Accueil</div>
-            <div class="active">Gestion des comptes</div>
-            <div>Gestion des ressources</div>
+            <div class="active"><a href="accueil_admin.php">Gestion des comptes</a></div>
+            <div><a href="Gestion_admin.php">Gestion des ressources</a></div>
         </div>
     </div>
     <div class="main-content">
@@ -79,6 +78,7 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
             <div class="form-section">
                 <h2>Saisie étudiant</h2>
                 <form action="accueil_admin.php" method="post">
+                <input type="text" name="id" id="id" placeholder="ID de l'étudiant" required>
                     <input type="text" name="nom" id="nom" placeholder="Nom" required>
                     <input type="text" name="prenom" id="prenom" placeholder="Prénom" required>
                     <input type="text" name="TD" id="TD" placeholder="TD" required>
@@ -93,6 +93,7 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                 <div class="student-list">
                     <table>
                         <tr>
+                            <th>ID</th>
                             <th>Nom</th>
                             <th>Prénom</th>
                             <th>TD</th>
@@ -103,6 +104,7 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                         <?php if ($etudiants): ?>
                             <?php foreach ($etudiants as $etudiant): ?>
                             <tr>
+                                <td><?php echo htmlspecialchars($etudiant['ID_utilisateur']); ?></td>
                                 <td><?php echo htmlspecialchars($etudiant['nom']); ?></td>
                                 <td><?php echo htmlspecialchars($etudiant['prenom']); ?></td>
                                 <td><?php echo htmlspecialchars($etudiant['TD']); ?></td>
