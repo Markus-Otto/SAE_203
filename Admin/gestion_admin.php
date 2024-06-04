@@ -20,8 +20,10 @@ if (isset($_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['a
 }
 $stmt = $conn->query('SELECT nom, prenom, TD, TP, annee FROM etudiant');
 echo $stmt;
-header("Location: acc_admin.php")
+
 }
+header("Location: accueil_admin.html")
+
 
 
 ?>
