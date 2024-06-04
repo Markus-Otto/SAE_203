@@ -5,16 +5,18 @@ include "fnct_conn.php";
 $conn = connexion();
 
 function envoyer($conn) {
-    if (isset($_POST['id'], $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee'])) {
-        $requete = 'INSERT INTO etudiant (ID_utilisateur, nom, prenom, TD, TP, annee) VALUES (?,?, ?, ?, ?, ?)';
-        $stmt = $conn->prepare($requete);
+    if (isset($_POST['role'])) {
+        if ($_POST['role'] == 'etudiant' && isset($_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee'])) {
+            $requete = 'INSERT INTO etudiant (nom, prenom, TD, TP, annee) VALUES (?, ?, ?, ?, ?)';
+            $stmt = $conn->prepare($requete);
+            $stmt->bind_param('sssss', $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee']);
+        } elseif ($_POST['role'] == 'enseignant' && isset($_POST['nom'], $_POST['prenom'])) {
+            $requete = 'INSERT INTO enseignant (nom, prenom) VALUES (?, ?)';
+            $stmt = $conn->prepare($requete);
+            $stmt->bind_param('ss', $_POST['nom'], $_POST['prenom']);
+        }
         
-        // Lier les paramètres
-        $stmt->bind_param('ssssss',$_POST['id'], $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee']);
-        
-        // Exécuter la requête
         if ($stmt->execute()) {
-            // Redirection après l'insertion
             header("Location: accueil_admin.php");
             exit();
         } else {
@@ -23,37 +25,33 @@ function envoyer($conn) {
     }
 }
 
-function supprimer($conn, $id) {
-    $requete = 'DELETE FROM etudiant WHERE ID_utilisateur = ?';
+function supprimer($conn, $id, $role) {
+    if ($role == 'etudiant') {
+        $requete = 'DELETE FROM etudiant WHERE ID_utilisateur = ?';
+    } elseif ($role == 'enseignant') {
+        $requete = 'DELETE FROM enseignant WHERE ID_enseignant = ?';
+    }
     $stmt = $conn->prepare($requete);
     $stmt->bind_param('i', $id);
     $stmt->execute();
-    
-    // Redirection après la suppression
     header("Location: accueil_admin.php");
     exit();
 }
 
-// Appel de la fonction envoyer si le formulaire est soumis
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['envoyer'])) {
     envoyer($conn);
 }
 
-// Appel de la fonction supprimer si l'action de suppression est déclenchée
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['supprimer'])) {
-    supprimer($conn, $_POST['id']); // Correction ici pour utiliser 'id' au lieu de 'ID_utilisateur'
+    supprimer($conn, $_POST['id'], $_POST['role']);
 }
 
-// Récupération des données pour affichage
-$result = $conn->query('SELECT ID_utilisateur, nom, prenom, TD, TP, annee FROM etudiant');
-$etudiants = $result->fetch_all(MYSQLI_ASSOC);
+$result_etudiants = $conn->query('SELECT ID_utilisateur, nom, prenom, TD, TP, annee FROM etudiant');
+$etudiants = $result_etudiants->fetch_all(MYSQLI_ASSOC);
+
+$result_enseignants = $conn->query('SELECT ID_enseignant, nom, prenom FROM enseignant');
+$enseignants = $result_enseignants->fetch_all(MYSQLI_ASSOC);
 ?>
-
-
-
-
-
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -83,14 +81,18 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
         <h1>Gestion des comptes</h1>
         <div class="content">
             <div class="form-section">
-                <h2>Saisie étudiant</h2>
+                <h2>Saisie étudiant ou enseignant</h2>
                 <form action="accueil_admin.php" method="post">
-                <input type="text" name="id" id="id" placeholder="ID de l'étudiant" required>
                     <input type="text" name="nom" id="nom" placeholder="Nom" required>
                     <input type="text" name="prenom" id="prenom" placeholder="Prénom" required>
-                    <input type="text" name="TD" id="TD" placeholder="TD" required>
-                    <input type="text" name="TP" id="TP" placeholder="TP" required>
-                    <input type="text" name="annee" id="annee" placeholder="Année univ" required>
+                    <input type="text" name="TD" id="TD" placeholder="TD">
+                    <input type="text" name="TP" id="TP" placeholder="TP">
+                    <input type="text" name="annee" id="annee" placeholder="Année univ">
+                    <label for="role">Sélectionnez le rôle :</label>
+                    <select name="role" id="role">
+                        <option value="etudiant">Étudiant</option>
+                        <option value="enseignant">Enseignant</option>
+                    </select>
                     <button type="submit" name="envoyer">Envoyer</button>
                     <button type="reset">Effacer</button>
                 </form>
@@ -120,6 +122,7 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                                 <td>
                                     <form action="accueil_admin.php" method="post" style="display:inline;">
                                         <input type="hidden" name="id" value="<?php echo $etudiant['ID_utilisateur']; ?>">
+                                        <input type="hidden" name="role" value="etudiant">
                                         <button type="submit" name="supprimer">Supprimer</button>
                                     </form>
                                 </td>
@@ -127,28 +130,15 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6">Aucun étudiant trouvé.</td>
+                                <td colspan="7">Aucun étudiant trouvé.</td>
                             </tr>
                         <?php endif; ?>
                     </table>
                 </div>
             </div>
-        </div>
-        <h1>Gestion des comptes</h1>
-        <div class="content">
-            <div class="form-section">
-                <h2>Saisie enseignant</h2>
-                <form action="accueil_admin.php" method="post">
-                <input type="text" name="id" id="id" placeholder="ID de l'enseignant" required>
-                    <input type="text" name="nom" id="nom" placeholder="Nom" required>
-                    <input type="text" name="prenom" id="prenom" placeholder="Prénom" required>
-                    <button type="submit" name="envoyer">Envoyer</button>
-                    <button type="reset">Effacer</button>
-                </form>
-            </div>
             <div class="update-section">
-                <h2>Mis à jour des enseignant</h2>
-                <div class="student-list">
+                <h2>Mis à jour des enseignants</h2>
+                <div class="teacher-list">
                     <table>
                         <tr>
                             <th>ID</th>
@@ -156,15 +146,16 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                             <th>Prénom</th>
                             <th>Actions</th>
                         </tr>
-                        <?php if ($etudiants): ?>
-                            <?php foreach ($etudiants as $etudiant): ?>
+                        <?php if ($enseignants): ?>
+                            <?php foreach ($enseignants as $enseignant): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($etudiant['	ID_enseignant']); ?></td>
-                                <td><?php echo htmlspecialchars($etudiant['nom']); ?></td>
-                                <td><?php echo htmlspecialchars($etudiant['prenom']); ?></td>
+                                <td><?php echo htmlspecialchars($enseignant['ID_enseignant']); ?></td>
+                                <td><?php echo htmlspecialchars($enseignant['nom']); ?></td>
+                                <td><?php echo htmlspecialchars($enseignant['prenom']); ?></td>
                                 <td>
                                     <form action="accueil_admin.php" method="post" style="display:inline;">
-                                        <input type="hidden" name="id" value="<?php echo $etudiant['ID_enseignant']; ?>">
+                                        <input type="hidden" name="id" value="<?php echo $enseignant['ID_enseignant']; ?>">
+                                        <input type="hidden" name="role" value="enseignant">
                                         <button type="submit" name="supprimer">Supprimer</button>
                                     </form>
                                 </td>
@@ -172,7 +163,7 @@ $etudiants = $result->fetch_all(MYSQLI_ASSOC);
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6">Aucun étudiant trouvé.</td>
+                                <td colspan="4">Aucun enseignant trouvé.</td>
                             </tr>
                         <?php endif; ?>
                     </table>
