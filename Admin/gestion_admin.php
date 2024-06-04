@@ -3,7 +3,7 @@ session_start();
 include "fnct_conn.php";
 
 $conn = connexion();
-
+function envoyer(){
 if (isset($_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee'])) {
     $requete = 'INSERT INTO etudiant (nom, prenom, TD, TP, annee) VALUES (:nom, :prenom, :TD, :TP, :annee)';
     $stmt = $conn->prepare($requete);
@@ -20,6 +20,9 @@ if (isset($_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['a
 }
 $stmt = $conn->query('SELECT nom, prenom, TD, TP, annee FROM etudiant');
 echo $stmt;
+header("Location: acc_admin.php")
+}
+
 
 ?>
 // Ajouter un élève
