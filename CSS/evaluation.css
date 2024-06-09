@@ -1,0 +1,159 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #2C3E50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed position */
+}
+
+.sidebar .logo img {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.sidebar nav ul li {
+    width: 100%;
+}
+
+.sidebar nav ul li a {
+    display: block;
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar nav ul li.active a,
+.sidebar nav ul li a:hover {
+    background-color: #3498DB;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    margin-left: 200px; /* Ajusté pour aligner avec la sidebar et éviter que le contenu soit caché */
+}
+
+header {
+    display: flex;
+    justify-content: flex-start; /* Alignez les éléments au début */
+    align-items: center;
+    margin-bottom: 20px;
+    padding-left: 200px; /* Ajoutez un padding à gauche équivalent à la largeur de la sidebar */
+}
+
+header input[type="text"],
+header button {
+    margin: 0 10px; /* Ajustez l'espacement autour de l'input et du bouton */
+}
+
+header button:hover {
+    background-color: #2980B9;
+}
+
+.class-table {
+    background-color: #ECF0F1;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ccc; /* Ajout d'une bordure autour du tableau */
+    padding: 20px; /* Ajout d'un padding autour du tableau pour éviter le chevauchement */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Ajout d'un espace entre le tableau et les éléments au-dessus */
+}
+
+thead {
+    background-color: #3498DB;
+    color: white;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+td input[type="text"],
+td input[type="date"] {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.profile {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.profile img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.recherche {
+    margin-left: -210px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.recherche input {
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.recherche button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #34495E;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.recherche button:hover {
+    background-color: #2980B9;
+}
+
+.copy-btn {
+    padding: 10px 20px; /* Augmente le padding pour un bouton plus grand */
+    border: none;
+    background-color: #34495E;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 20px; /* Augmente la marge pour plus d'espacement entre les boutons */
+}
+
+.copy-btn:hover {
+    background-color: #2980B9;
+}

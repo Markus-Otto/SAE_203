@@ -93,15 +93,28 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des comptes</title>
-    <link rel="stylesheet" href="accueil_admin.css">
-    <link rel="icon" type="image/gif" href="../image/EiffelNote_logo_V9.png" class="img2"/>
+    <link rel="stylesheet" href="/sae203/CSS/accueil_admin.css">
+    <link rel="icon" type="image/gif" href="../sae203/" class="img2"/>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">EIFFEL NOTE</div>
         <div class="menu">
-            <div class="active"><a href="accueil_admin.php">Gestion des comptes</a></div>
+            <div class="active"><a href="./accueil_admin.php">Gestion des comptes</a></div>
             <div><a href="#">Gestion des ressources</a></div>
+        </div>
+    </div>
+    <div class="logout">
+        <form method="post" action="accueil_admin.php">
+            <button type="submit" name="logout">Déconnexion</button>
+    <?php
+         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
+             session_start();
+            session_unset();
+             session_destroy();
+            header("Location: ../page_login/Accueil_note.php");
+             exit();    }   ?>
+            </form>
         </div>
     </div>
     <div class="main-content">
@@ -117,7 +130,7 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
             <div class="form-section">
                 <h2>Saisie étudiant ou enseignant</h2>
                 <form method="post" action="accueil_admin.php">
-                    <input type="text" name="id" placeholder="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : ''; ?>">
+                    
                     <input type="text" name="nom" placeholder="Nom" value="<?php echo isset($_GET['nom']) ? $_GET['nom'] : ''; ?>">
                     <input type="text" name="prenom" placeholder="Prénom" value="<?php echo isset($_GET['prenom']) ? $_GET['prenom'] : ''; ?>">
                     <input type="text" name="TD" placeholder="TD" value="<?php echo isset($_GET['TD']) ? $_GET['TD'] : ''; ?>">
