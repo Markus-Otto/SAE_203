@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eiffel Note</title>
-    <link rel="stylesheet" href="/CSS/accueil_admin.css">
-    <link rel="icon" type="image/gif" href="../sae203/image/EiffelNote_logo_V9.png" class="img2"/>
+    <link rel="stylesheet" href="./CSS/accueil_note.css">
+    <link rel="icon" type="image/gif" href="./image/EiffelNote_logo_V9.png" class="img2"/>
 </head>
 <body>
     <div class="login-container">
         <div class="logo-container">
-            <img src="../sae203/image/EiffelNote_logo_V9.png" alt="Eiffel Note Logo" class="img1">
+            <img src="./image/EiffelNote_logo_V9.png" alt="Eiffel Note Logo" class="img1">
         </div>
         <h2 class="title1">EIFFEL NOTE</h2>
-        <form class="login-form" action="connection.php" method="POST">
+        <form class="login-form" action="./PHP/page_login/connection.php" method="POST">
             <div class="input-container">
                 <label for="login">Identifiant :</label>
                 <input class="input1" type="text" id="login" name="login" placeholder="Entrez votre identifiant ..." required>
@@ -27,8 +27,10 @@
                         <option value="enseignant">Enseignant</option>
                         <option value="admin">admin</option>
             </select>
-            <button type="submit" class="login-button">Connexion</button>
+            <button type="submit" class="login-button" >Connexion</button>
         </form>
     </div>
 </body>
 </html>
+
+

@@ -56,15 +56,16 @@
     <div class="logout">
         <form method="post" action="accueil_admin.php">
             <button type="submit" name="logout">Déconnexion</button>
-    <?php
-         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
-             session_start();
-            session_unset();
-             session_destroy();
-            header("Location: ../page_login/Accueil_note.php");
-             exit();    }   ?>
-            </form>
-        </div>
+            <?php
+            if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
+                session_start();
+                session_unset();
+                session_destroy();
+                header("Location: ../page_login/Accueil_note.php");
+                exit();
+            }
+            ?>
+        </form>
     </div>
     <div class="main-content">
         <header>
@@ -119,7 +120,7 @@
                         $servername = "localhost";
                         $username = "root";
                         $password = "";
-                        $dbname = "effeil_note_db";
+                        $dbname = "eiffel_note_db";
                         
                         try {
                             // Création de la connexion à la base de données en utilisant PDO
@@ -127,10 +128,21 @@
                             // Configuration du mode d'erreur pour les exceptions
                             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                            // Récupération des élèves
-                            $query = "SELECT DISTINCT ID_UE, prenom, nom FROM etudiant ORDER BY nom, prenom";
+                            // Récupération des filtres
+                            $filterType = isset($_POST['filter-type']) ? $_POST['filter-type'] : '';
+                            $filterValue = isset($_POST['filter-value']) ? $_POST['filter-value'] : '';
+
+                            // Construction de la requête SQL avec filtres
+                            $query = "SELECT DISTINCT ID_utilisateur, prenom, nom, TD, TP FROM etudiant";
+                            if ($filterType && $filterValue) {
+                                $query .= " WHERE $filterType = :filterValue";
+                            }
+                            $query .= " ORDER BY nom, prenom";
 
                             $stmt = $conn->prepare($query);
+                            if ($filterType && $filterValue) {
+                                $stmt->bindParam(':filterValue', $filterValue);
+                            }
                             $stmt->execute();
 
                             // Affichage des données pour chaque élève
@@ -138,11 +150,11 @@
                                 echo "<tr>";
                                 echo "<td>" . htmlspecialchars($row['nom']) . "</td>";
                                 echo "<td>" . htmlspecialchars($row['prenom']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['ID_UE']) . "</td>";
+                                echo "<td>" . htmlspecialchars($row['ID_utilisateur']) . "</td>";
                                 // Récupération des notes de l'élève
-                                $query_note = "SELECT Note FROM epreuves WHERE ID_UE = :id_ue";
+                                $query_note = "SELECT Note FROM epreuves WHERE ID_utilisateur = :ID_utilisateur";
                                 $stmt_note = $conn->prepare($query_note);
-                                $stmt_note->bindParam(':id_ue', $row['ID_UE']);
+                                $stmt_note->bindParam(':ID_utilisateur', $row['ID_utilisateur']);
                                 $stmt_note->execute();
                                 $note_row = $stmt_note->fetch(PDO::FETCH_ASSOC);
                                 // Affichage de la note ou d'une cellule vide s'il n'y a pas de note

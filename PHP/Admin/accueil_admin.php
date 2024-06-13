@@ -6,40 +6,53 @@ $conn = connexion();
 
 function envoyer($conn) {
     if (isset($_POST['role'])) {
+        // Initialize the variables
+        $stmt_verif = null;
+        $stmt = null;
+        $nom = $_POST['nom'];
+        $prenom = $_POST['prenom'];
+
         // Vérifier si l'ID existe déjà
-        $id = $_POST['id'];
         if ($_POST['role'] == 'etudiant') {
             $requete_verif = 'SELECT ID_utilisateur FROM etudiant WHERE ID_utilisateur = ?';
         } elseif ($_POST['role'] == 'enseignant') {
             $requete_verif = 'SELECT ID_enseignant FROM enseignant WHERE ID_enseignant = ?';
         }
-        $stmt_verif = $conn->prepare($requete_verif);
-        $stmt_verif->bind_param('i', $id);
-        $stmt_verif->execute();
-        $stmt_verif->store_result();
-        
-        if ($stmt_verif->num_rows > 0) {
-            echo "Erreur: L'ID existe déjà.";
-            return;
-        }
-        
-        // Insertion des données
-        if ($_POST['role'] == 'etudiant' && isset($_POST['id'], $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee'])) {
-            $requete = 'INSERT INTO etudiant (ID_utilisateur, nom, prenom, TD, TP, annee) VALUES (?, ?, ?, ?, ?, ?)';
-            $stmt = $conn->prepare($requete);
-            $stmt->bind_param('ssssss', $_POST['id'], $_POST['nom'], $_POST['prenom'], $_POST['TD'], $_POST['TP'], $_POST['annee']);
-        } elseif ($_POST['role'] == 'enseignant' && isset($_POST['id'], $_POST['nom'], $_POST['prenom'])) {
-            $requete = 'INSERT INTO enseignant (ID_enseignant, Nom, Prenom) VALUES (?, ?, ?)';
-            $stmt = $conn->prepare($requete);
-            $stmt->bind_param('sss', $_POST['id'], $_POST['Nom'], $_POST['Prenom']);
+
+        if (isset($requete_verif)) {
+            $stmt_verif = $conn->prepare($requete_verif);
+            $stmt_verif->bind_param('i', $id);
+            $stmt_verif->execute();
+            $stmt_verif->store_result();
+
+            if ($stmt_verif->num_rows > 0) {
+                echo "Erreur: L'ID existe déjà.";
+                return;
+            }
         }
 
-        if ($stmt->execute()) {
-            header("Location: accueil_admin.php");
+        // Insertion des données
+        if ($_POST['role'] == 'etudiant' && isset($id, $nom, $prenom, $_POST['TD'], $_POST['TP'], $_POST['annee_promo'])) {
+            $td = $_POST['TD'];
+            $tp = $_POST['TP'];
+            $annee_promo = $_POST['annee_promo'];
+            $requete = 'INSERT INTO etudiant (ID_utilisateur, nom, prenom, TD, TP, annee) VALUES (?, ?, ?, ?, ?, ?)';
+            $stmt = $conn->prepare($requete);
+            $stmt->bind_param('ssssss', $id, $nom, $prenom, $td, $tp, $annee_promo);
+        } elseif ($_POST['role'] == 'enseignant' && isset($id, $nom, $prenom)) {
+            $requete = 'INSERT INTO enseignant (ID_enseignant, Nom, Prenom) VALUES (?, ?, ?)';
+            $stmt = $conn->prepare($requete);
+            $stmt->bind_param('sss', $id, $nom, $prenom);
+        }
+
+        if ($stmt && $stmt->execute()) {
+            header("Location: ../../accueil_admin.php");
             exit();
         } else {
-            echo "Erreur: " . $stmt->error;
+            echo "Erreur: " . ($stmt ? $stmt->error : "Statement not prepared.");
         }
+    } else {
+        echo "Erreur: Rôle non spécifié.";
     }
 }
 
@@ -52,7 +65,7 @@ function supprimer($conn, $id, $role) {
     $stmt = $conn->prepare($requete);
     $stmt->bind_param('i', $id);
     $stmt->execute();
-    header("Location: accueil_admin.php");
+    header("Location: ../../accueil_admin.php");
     exit();
 }
 
@@ -100,12 +113,10 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
     <div class="sidebar">
         <div class="logo">EIFFEL NOTE</div>
         <div class="menu">
-            <div class="active"><a href="./accueil_admin.php">Gestion des comptes</a></div>
+            <div class="active"><a href="../Admin/accueil_admin.php">Gestion des comptes</a></div>
             <div><a href="#">Gestion des ressources</a></div>
-        </div>
-    </div>
-    <div class="logout">
-        <form method="post" action="accueil_admin.php">
+            <div class="logout">
+        <form method="post" action="../Admin/accueil_admin.php">
             <button type="submit" name="logout">Déconnexion</button>
     <?php
          if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
@@ -117,6 +128,9 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
             </form>
         </div>
     </div>
+        </div>
+    </div>
+   
     <div class="main-content">
         <header>
             <input type="text" placeholder="SAE, UE ...">
@@ -129,13 +143,13 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
         <div class="content">
             <div class="form-section">
                 <h2>Saisie étudiant ou enseignant</h2>
-                <form method="post" action="accueil_admin.php">
+                <form method="post" action="../Admin/accueil_admin.php">
                     
                     <input type="text" name="nom" placeholder="Nom" value="<?php echo isset($_GET['nom']) ? $_GET['nom'] : ''; ?>">
                     <input type="text" name="prenom" placeholder="Prénom" value="<?php echo isset($_GET['prenom']) ? $_GET['prenom'] : ''; ?>">
                     <input type="text" name="TD" placeholder="TD" value="<?php echo isset($_GET['TD']) ? $_GET['TD'] : ''; ?>">
                     <input type="text" name="TP" placeholder="TP" value="<?php echo isset($_GET['TP']) ? $_GET['TP'] : ''; ?>">
-                    <input type="text" name="annee" placeholder="Année univ" value="<?php echo isset($_GET['annee']) ? $_GET['annee'] : ''; ?>">
+                    <input type="text" name="annee" placeholder="Année univ" value="<?php echo isset($_GET['annee_promo']) ? $_GET['annee_promo'] : ''; ?>">
                     <select name="role">
                         <option value="etudiant">Etudiant</option>
                         <option value="enseignant">Enseignant</option>
@@ -166,9 +180,9 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
                                 <td><?php echo $etudiant['prenom']; ?></td>
                                 <td><?php echo $etudiant['TD']; ?></td>
                                 <td><?php echo $etudiant['TP']; ?></td>
-                                <td><?php echo $etudiant['annee']; ?></td>
+                                <td><?php echo $etudiant['annee_promo']; ?></td>
                                 <td>
-                                    <form method="post" action="accueil_admin.php">
+                                    <form method="post" action="../Admin/accueil_admin.php">
                                         <input type="hidden" name="id" value="<?php echo $etudiant['ID_utilisateur']; ?>">
                                         <input type="hidden" name="role" value="etudiant">
                                         <button type="submit" name="modifier">Modifier</button>
@@ -198,7 +212,7 @@ $result_enseignants = $conn->query("SELECT * FROM enseignant");
                                 <td><?php echo $enseignant['Nom']; ?></td>
                                 <td><?php echo $enseignant['Prenom']; ?></td>
                                 <td>
-                                    <form method="post" action="accueil_admin.php">
+                                    <form method="post" action="../Admin/accueil_admin.php">
                                         <input type="hidden" name="id" value="<?php echo $enseignant['ID_enseignant']; ?>">
                                         <input type="hidden" name="role" value="enseignant">
                                         <button type="submit" name="modifier">Modifier</button>

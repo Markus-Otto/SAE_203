@@ -15,7 +15,7 @@ function envoyer($conn) {
         // Exécuter la requête
         if ($stmt->execute()) {
             // Redirection après l'insertion
-            header("Location: accueil_admin.php");
+            header("Location: ../../accueil_admin.php");
             exit();
         } else {
             echo "Erreur: " . $stmt->error;
@@ -30,7 +30,7 @@ function supprimer($conn, $id) {
     $stmt->execute();
     
     // Redirection après la suppression
-    header("Location: accueil_admin.php");
+    header("Location: ../../accueil_admin.php");
     exit();
 }
 

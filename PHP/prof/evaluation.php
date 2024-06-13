@@ -111,10 +111,11 @@
                     </thead>
                     <tbody>
                         <?php
+                        // Informations de connexion à la base de données
                         $servername = "localhost";
                         $username = "root";
                         $password = "";
-                        $dbname = "effeil_note_db";
+                        $dbname = "eiffel_note_db";
 
                         try {
                             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);

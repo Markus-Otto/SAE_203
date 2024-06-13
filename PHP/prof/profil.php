@@ -42,7 +42,7 @@
             $servername = "localhost";
             $username = "root";
             $password = "";
-            $dbname = "effeil_note_db";
+            $dbname = "eiffel_note_db";
 
             try {
                 // Création de la connexion à la base de données en utilisant PDO
