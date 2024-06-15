@@ -179,10 +179,9 @@ $conn->close();
         // Fonction pour supprimer une ressource
         function supprimerRessource(id) {
             if (confirm("Êtes-vous sûr de vouloir supprimer cette ressource ?")) {
-                window.location.href = "gestion_ressource.php?action=delete&id=" + id;
+                window.location.href = "delete_ressource.php?action=delete&id=" + id;
             }
         }
-
         // Fonction pour actualiser la page
         function actualiserPage() {
             location.reload();
