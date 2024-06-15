@@ -51,6 +51,13 @@
         </header>
         <section class="profil">
             <?php
+           
+           session_start();
+           if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'enseignant') {
+               header("Location: ../../../../Accueil_note.php");
+               exit();
+           }
+           
                 // Informations de connexion à la base de données
                 $servername = "localhost";
                 $username = "root";

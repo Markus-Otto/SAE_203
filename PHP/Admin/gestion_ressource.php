@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../../../../Accueil_note.php");
+    exit();
+}
 include "fnct_conn.php";
 $conn = connexion();
 

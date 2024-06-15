@@ -41,7 +41,13 @@
         <h2>Note</h2>
         <div class="notes">
             <?php
-            @session_start();
+            
+            session_start();
+            if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'enseignant') {
+                header("Location: ../../../../Accueil_note.php");
+                exit();
+            }
+        
             // Connexion à la base de données
             $servername = 'localhost';
             $username = 'root';

@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'etudiant') {
+    header("Location: ../../../../Accueil_note.php");
+    exit();
+}
 include "../Admin/fnct_conn.php";
 
 if (!isset($_SESSION['username'])) {
