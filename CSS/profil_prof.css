@@ -1,0 +1,166 @@
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    margin: 0;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    position: relative;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.search-bar {
+    display: flex;
+    margin-bottom: 20px;
+    background-color: #FFFFFF;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.search-bar input {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3D97FF;
+    color: white;
+    cursor: pointer;
+}
+
+button, .add-button, .modal .modal-content button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3D97FF;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover, .add-button:hover, .modal .modal-content button:hover {
+    background-color: #202C45;
+}
+
+.notes {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.note-block {
+    background-color: #FFFFFF;
+    padding: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex: 1 0 200px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.note-block:hover {
+    background-color: #313A46;
+    color: #FFFFFF;
+}
+
+.note-block.active {
+    background-color: #3D97FF;
+    color: #FFFFFF;
+}
+
+#notes-table {
+    margin-top: 20px;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+/* Partie profil */
+.main-contentprofil {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #ECF0F1;
+    overflow-y: auto;
+}
+
+.profil {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.logout {
+    position: fixed;
+    bottom: 20px;
+    right: 1207px;
+    text-align: center;
+}
+
+.logout form {
+    display: inline-block;
+}
+
+.logout button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.logout button:hover {
+    background-color: #c0392b;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 768px) {
+    .main-content, .main-contentprofil {
+        padding: 10px;
+    }
+
+    .search-bar input, .search-bar button, button, .add-button, .modal .modal-content button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .note-block {
+        flex: 1 0 150px;
+        padding: 15px;
+    }
+
+    .logout {
+        bottom: 10px;
+        right: 10px;
+    }
+}

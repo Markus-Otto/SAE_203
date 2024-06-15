@@ -6,37 +6,43 @@ include "fct_connection.php";
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $login = $_POST['login'];
     $pass = $_POST['password'];
-    $role = $_POST['role'];
 
     $conn = connexion();
-
+    $hashed_password = md5($pass);
+    echo "Login: " . htmlspecialchars($login) . "<br>";
+    echo "Hashed Password: " . htmlspecialchars($hashed_password) . "<br>";
     // Prepare the SQL statement
-    $sql = $conn->prepare("SELECT username, pass FROM users WHERE username = ?");
+    $sql = $conn->prepare("
+        SELECT username, pass, 'admin' as role FROM admin WHERE username = ? AND pass = ?
+        UNION ALL
+        SELECT username, pass, 'etudiant' as role FROM etudiant WHERE username = ? AND pass = ?
+        UNION ALL
+        SELECT username, pass, 'enseignant' as role FROM enseignant WHERE username = ? AND pass = ?
+    ");
     if ($sql === false) {
         die("Erreur de préparation de la requête: " . $conn->error);
     }
 
-    // Bind parameters and execute
-    $sql->bind_param('s', $login);
+    $sql->bind_param('ssssss', $login, $hashed_password, $login, $hashed_password, $login, $hashed_password);
     $sql->execute();
     $sql->store_result();
 
     if ($sql->num_rows > 0) {
-        $sql->bind_result($username, $stored_hashed_password);
+        $sql->bind_result($username, $pass, $user_role );
         $sql->fetch();
 
         // Check if the password is correct
-        if (md5($pass) == $stored_hashed_password) {
+        if ($hashed_password == $pass) {
             $_SESSION['username'] = $login;
-            $_SESSION['role'] = $role;
+            $_SESSION['role'] = $user_role;
 
             // Redirect based on the role
-            if ($role === 'admin') {
+            if ($user_role === 'admin') {
                 header("Location: ../Admin/accueil_admin.php");
-            } elseif ($role === 'etudiant') {
-                header("Location: ../../etudiant_page.php");
-            } elseif ($role === 'enseignant') {
-                header("Location: ../../enseignant_page.php");
+            } elseif ($user_role === 'etudiant') {
+                header("Location: ../étudiant/recap_notes.php");
+            } elseif ($user_role === 'enseignant') {
+                header("Location: ../prof/index.php");
             } else {
                 echo "Rôle inconnu ou non correspondant.";
             }
@@ -45,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo "Mot de passe incorrect.";
         }
     } else {
+        echo $sql->num_rows;
         echo "Identifiant incorrect.";
     }
 

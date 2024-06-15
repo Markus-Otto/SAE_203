@@ -3,219 +3,589 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classes - Eiffel Note</title>
-    <link rel="stylesheet" href="../../CSS/styleprofclasse.css">
+    <title>Page de Notes</title>
+    <link rel="stylesheet" href="../../CSS/accueilprofnote.css">
+<link rel="stylesheet" href="../../CSS/sidebar.css">
     <style>
-        .filter-menu {
-            position: relative;
-            display: inline-block;
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('../../font/PlayfairDisplay-Black.ttf') format('truetype');
         }
-        .filter-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+        @font-face {
+            font-family: 'PT Sans';
+            src: url('../../font/PTSans-Bold.ttf') format('truetype');
         }
-        .filter-content button {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-        }
-        .filter-content button:hover {
-            background-color: #f1f1f1;
-        }
-        .dropdown-content {
-            display: none;
-        }
-        .show {
-            display: block;
+        .note-block.active {
+            background-color: #f0f0f0; /* Changez cette couleur pour marquer le bloc actif */
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">
-            <img src="../../image/EiffelNote_logo_V9.png" alt="Eiffel Note Logo">
+        <h1>EIFFEL NOTE</h1>
+        <ul>
+            <li class="active"><a href="index.php">Evaluations</a></li>
+            <li><a href="profil.php">Profil</a></li>
+        </ul>
+        <div class="logout">
+            <form action="../../Accueil_note.php" method="post">
+                <button type="submit">Déconnexion</button>
+            </form>
         </div>
-        <nav>
-            <ul>
-                <li class="active"><a href="index.php">Classes</a></li>
-                <li><a href="evaluation.php">Evaluations</a></li>
-                <li><a href="profil.php">Profil</a></li>
-            </ul>
-        </nav>
-    </div>
-    <div class="logout">
-        <form method="post" action="accueil_admin.php">
-            <button type="submit" name="logout">Déconnexion</button>
-            <?php
-            if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
-                session_start();
-                session_unset();
-                session_destroy();
-                header("Location: ../page_login/Accueil_note.php");
-                exit();
-            }
-            ?>
-        </form>
     </div>
     <div class="main-content">
-        <header>
-            <div class="recherche">
-                <form method="POST" action="">
-                    <input type="text" placeholder="SAE, UE ..." id="search-input" name="search-term" />
-                    <button type="submit">Recherche</button>
-                    <div class="filter-menu">
-                        <button type="button" onclick="toggleFilterMenu()">Filtre</button>
-                        <div id="filter-content" class="filter-content">
-                            <button type="button" onclick="toggleDropdown('tp-dropdown')">TP</button>
-                            <div id="tp-dropdown" class="dropdown-content">
-                                <button type="button" onclick="setFilter('TP', 'A')">A</button>
-                                <button type="button" onclick="setFilter('TP', 'B')">B</button>
-                                <button type="button" onclick="setFilter('TP', 'C')">C</button>
-                                <button type="button" onclick="setFilter('TP', 'D')">D</button>
-                                <button type="button" onclick="setFilter('TP', 'E')">E</button>
-                                <button type="button" onclick="setFilter('TP', 'F')">F</button>
-                            </div>
-                            <button type="button" onclick="toggleDropdown('td-dropdown')">TD</button>
-                            <div id="td-dropdown" class="dropdown-content">
-                                <button type="button" onclick="setFilter('TD', '1')">1</button>
-                                <button type="button" onclick="setFilter('TD', '2')">2</button>
-                                <button type="button" onclick="setFilter('TD', '3')">3</button>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="hidden" id="filter-type" name="filter-type" />
-                    <input type="hidden" id="filter-value" name="filter-value" />
-                </form>
-            </div>
-        </header>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Recherche...">
+            <button onclick="searchNotes()">Recherche</button>
+        </div>
+        <h2>Note</h2>
+        <div class="notes">
+            <?php
+            @session_start();
+            // Connexion à la base de données
+            $servername = 'localhost';
+            $username = 'root';
+            $password = ''; // Ajoutez votre mot de passe si nécessaire
+            $dbname = 'eiffel_note_db';
 
-        <section class="classes">
-            <h2>Classes</h2>
-            <div class="class-table">
-                <div class="class-header">
-                    <span>MMI 1</span>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Prénom</th>
-                            <th>Numéro Etudiant</th>
-                            <th>Note</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        // Informations de connexion à la base de données
-                        $servername = "localhost";
-                        $username = "root";
-                        $password = "";
-                        $dbname = "eiffel_note_db";
-                        
-                        try {
-                            // Création de la connexion à la base de données en utilisant PDO
-                            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                            // Configuration du mode d'erreur pour les exceptions
-                            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            try {
+                $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+                $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                            // Récupération des filtres
-                            $filterType = isset($_POST['filter-type']) ? $_POST['filter-type'] : '';
-                            $filterValue = isset($_POST['filter-value']) ? $_POST['filter-value'] : '';
+                // Requête SQL pour récupérer les libellés d'épreuves
+                $stmt = $conn->prepare("SELECT DISTINCT libelle FROM epreuves");
+                $stmt->execute();
+                $epreuves = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                            // Construction de la requête SQL avec filtres
-                            $query = "SELECT DISTINCT ID_utilisateur, prenom, nom, TD, TP FROM etudiant";
-                            if ($filterType && $filterValue) {
-                                $query .= " WHERE $filterType = :filterValue";
-                            }
-                            $query .= " ORDER BY nom, prenom";
-
-                            $stmt = $conn->prepare($query);
-                            if ($filterType && $filterValue) {
-                                $stmt->bindParam(':filterValue', $filterValue);
-                            }
-                            $stmt->execute();
-
-                            // Affichage des données pour chaque élève
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<tr>";
-                                echo "<td>" . htmlspecialchars($row['nom']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['prenom']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['ID_utilisateur']) . "</td>";
-                                // Récupération des notes de l'élève
-                                $query_note = "SELECT Note FROM epreuves WHERE ID_utilisateur = :ID_utilisateur";
-                                $stmt_note = $conn->prepare($query_note);
-                                $stmt_note->bindParam(':ID_utilisateur', $row['ID_utilisateur']);
-                                $stmt_note->execute();
-                                $note_row = $stmt_note->fetch(PDO::FETCH_ASSOC);
-                                // Affichage de la note ou d'une cellule vide s'il n'y a pas de note
-                                echo "<td>";
-                                if ($note_row) {
-                                    echo htmlspecialchars($note_row['Note']);
-                                }
-                                echo "</td>";
-                                echo "</tr>";
-                            }
-                        } catch (PDOException $e) {
-                            echo "Erreur de connexion : " . $e->getMessage();
-                        }
-
-                        // Fermeture de la connexion
-                        $conn = null;
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                foreach ($epreuves as $epreuve) {
+                    echo '<div class="note-block" data-libelle="' . htmlspecialchars($epreuve['libelle'], ENT_QUOTES) . '" onclick="startAutoRefresh(\''.htmlspecialchars($epreuve['libelle'], ENT_QUOTES).'\')">';
+                    echo '<p>' . htmlspecialchars($epreuve['libelle']) . '</p>';
+                    echo '</div>';
+                }
+            } catch (PDOException $e) {
+                echo 'Erreur de connexion : ' . $e->getMessage();
+            }
+            ?>
+        </div>
+        <div class="notes-table-container hidden" id="notes-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Note</th>
+                        <th>Coefficient</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="notes-body">
+                </tbody>
+            </table>
+        </div>
+        <button onclick="showAddForm()">Ajouter des notes</button>
+    </div>
+    <div id="edit-students" class="hidden">
+        <h3>Modifier la note</h3>
+        <div id="edit-form"></div>
+    </div>
+    <div id="add-students" class="hidden">
+        <h3>Ajouter des notes</h3>
+        <div id="add-form"></div>
     </div>
 
     <script>
-        function toggleFilterMenu() {
-            document.getElementById('filter-content').classList.toggle('show');
+        let intervalId;
+        let libellesIntervalId;
+        let currentLibelle = '';
+
+    
+
+        function showNotes(libelle) {
+            currentLibelle = libelle;
+            document.querySelectorAll('.note-block').forEach(block => block.classList.remove('active'));
+            document.querySelector(`.note-block[data-libelle="${libelle}"]`).classList.add('active');
+            console.log("Fetching notes for:", libelle);
+            fetch('fetch_notes.php?libelle=' + encodeURIComponent(libelle))
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data)) {
+                        throw new Error('Invalid notes data');
+                    }
+                    const notesBody = document.getElementById('notes-body');
+                    notesBody.innerHTML = '';
+                    data.forEach(note => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${note.date_epreuve}</td>
+                            <td>${note.nom}</td>
+                            <td>${note.prenom}</td>
+                            <td>${note.notes}</td>
+                            <td>${note.coefficients}</td>
+                            <td>
+                                <button onclick="deleteNote(${note.ID_epreuve})">Supprimer</button>
+                                <button onclick="showEditForm(${note.ID_epreuve}, ${note.notes}, ${note.coefficients})">Modifier</button>
+                            </td>
+                        `;
+                        notesBody.appendChild(row);
+                    });
+                    document.getElementById('notes-table').classList.remove('hidden');
+                })
+                .catch(error => console.error('Error fetching notes:', error));
         }
 
-        function toggleDropdown(id) {
-            var dropdowns = document.getElementsByClassName('dropdown-content');
-            for (var i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.id === id) {
-                    openDropdown.classList.toggle('show');
-                } else {
-                    openDropdown.classList.remove('show');
-                }
+        function startAutoRefresh(libelle) {
+            clearInterval(intervalId);
+            showNotes(libelle);
+            intervalId = setInterval(() => showNotes(libelle), 5000);
+        }
+
+        function deleteNote(ID_epreuve) {
+            if (confirm('Voulez-vous vraiment supprimer cette note ?')) {
+                console.log("Deleting note with ID_epreuve:", ID_epreuve);
+                fetch('delete_notes.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'ID_epreuve': ID_epreuve
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Note supprimée avec succès');
+                        // Actualiser les notes après la suppression
+                        showNotes(currentLibelle);
+                    } else {
+                        alert('Erreur lors de la suppression de la note');
+                    }
+                })
+                .catch(error => console.error('Error deleting note:', error));
             }
         }
 
-        function setFilter(type, value) {
-            document.getElementById('filter-type').value = type;
-            document.getElementById('filter-value').value = value;
-            document.forms[0].submit();
+        function showEditForm(ID_epreuve, notes, coefficients) {
+            const editForm = document.getElementById('edit-form');
+            editForm.innerHTML = `
+                <form id="edit-note-form">
+                    <input type="hidden" name="ID_epreuve" value="${ID_epreuve}">
+                    <label>Note: <input type="number" name="notes" value="${notes}" min="0" max="20" step="0.01" required></label>
+                    <label>Coefficient: <input type="number" name="coefficients" value="${coefficients}" min="0" step="0.01" required></label>
+                    <button type="submit">Enregistrer les modifications</button>
+                    <button type="button" onclick="closeEditForm()">Fermer</button>
+                    <div id="edit-success-message" class="hidden">Modification réussie !</div>
+                    <div id="edit-error-message" class="hidden">Erreur lors de la modification.</div>
+                </form>
+            `;
+            document.getElementById('edit-students').classList.remove('hidden');
+
+            document.getElementById('edit-note-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                fetch('update_notes.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const successMessage = document.getElementById('edit-success-message');
+                    const errorMessage = document.getElementById('edit-error-message');
+                    if (data.success) {
+                        successMessage.classList.remove('hidden');
+                        errorMessage.classList.add('hidden');
+                        setTimeout(() => {
+                            successMessage.classList.add('hidden');
+                        }, 3000);
+                        // Actualiser les notes après la mise à jour
+                        showNotes(currentLibelle);
+                        document.getElementById('edit-students').classList.add('hidden');
+                    } else {
+                        successMessage.classList.add('hidden');
+                        errorMessage.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    const errorMessage = document.getElementById('edit-error-message');
+                    errorMessage.classList.remove('hidden');
+                    console.error('Error updating note:', error);
+                });
+            });
         }
 
-        window.onclick = function(event) {
-            if (!event.target.matches('.filter-menu button')) {
-                var dropdowns = document.getElementsByClassName('dropdown-content');
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
+        function stopAutoRefresh() {
+            clearInterval(intervalId);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gérer les clics sur les blocs de libellé
+            const noteBlocks = document.querySelectorAll('.note-block');
+            noteBlocks.forEach(block => {
+                block.addEventListener('click', function() {
+                    const libelle = this.getAttribute('data-libelle');
+                    stopAutoRefresh(); // Arrêter l'actualisation automatique du libellé précédent
+                    startAutoRefresh(libelle); // Démarrer l'actualisation pour le nouveau libellé
+                });
+            });
+
+            // Gérer la soumission du formulaire de recherche
+            const searchButton = document.querySelector('.search-bar button');
+            searchButton.addEventListener('click', function() {
+                const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+                if (searchTerm === '') {
+                    fetchLibelles(); // Réafficher toutes les notes si le terme de recherche est vide
+                } else {
+                    clearInterval(libellesIntervalId);
+                    stopAutoRefresh(); // Arrêter l'actualisation automatique lors de la recherche
+                    searchNotes();
+                }
+            });
+
+            // Initialiser l'actualisation des libellés au chargement de la page
+            fetchLibelles();
+            libellesIntervalId = setInterval(fetchLibelles, 5000);
+        });
+
+
+        function deleteNote(ID_epreuve) {
+            if (confirm('Voulez-vous vraiment supprimer cette note ?')) {
+                console.log("Deleting note with ID_epreuve:", ID_epreuve);
+                fetch('delete_notes.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'ID_epreuve': ID_epreuve
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Note supprimée avec succès');
+                        // Actualiser les notes après la suppression
+                        showNotes(currentLibelle);
+                    } else {
+                        alert('Erreur lors de la suppression de la note');
+                    }
+                })
+                .catch(error => console.error('Error deleting note:', error));
+            }
+        }
+
+        function showEditForm(ID_epreuve, notes, coefficients) {
+            const editForm = document.getElementById('edit-form');
+            editForm.innerHTML = `
+                <form id="edit-note-form">
+                    <input type="hidden" name="ID_epreuve" value="${ID_epreuve}">
+                    <label>Note: <input type="number" name="notes" value="${notes}" min="0" max="20" step="0.01" required></label>
+                    <label>Coefficient: <input type="number" name="coefficients" value="${coefficients}" min="0" step="0.01" required></label>
+                    <button type="submit">Enregistrer les modifications</button>
+                    <button type="button" onclick="closeEditForm()">Fermer</button>
+                    <div id="edit-success-message" class="hidden">Modification réussie !</div>
+                    <div id="edit-error-message" class="hidden">Erreur lors de la modification.</div>
+                </form>
+            `;
+            document.getElementById('edit-students').classList.remove('hidden');
+
+            document.getElementById('edit-note-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                fetch('update_notes.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const successMessage = document.getElementById('edit-success-message');
+                    const errorMessage = document.getElementById('edit-error-message');
+                    if (data.success) {
+                        successMessage.classList.remove('hidden');
+                        errorMessage.classList.add('hidden');
+                        setTimeout(() => {
+                            successMessage.classList.add('hidden');
+                        }, 3000);
+                        // Actualiser les notes après la mise à jour
+                        showNotes(currentLibelle);
+                        document.getElementById('edit-students').classList.add('hidden');
+                    } else {
+                        successMessage.classList.add('hidden');
+                        errorMessage.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    const errorMessage = document.getElementById('edit-error-message');
+                    errorMessage.classList.remove('hidden');
+                    console.error('Error updating note:', error);
+                });
+            });
+        }
+
+
+        function closeEditForm() {
+            document.getElementById('edit-students').classList.add('hidden');
+        }
+
+        function showAddForm() {
+            fetch('fetch_students.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data)) {
+                        throw new Error('Invalid students data');
+                    }
+                    fetch('fetch_resources.php')
+                        .then(response => response.json())
+                        .then(resources => {
+                            if (!Array.isArray(resources)) {
+                                throw new Error('Invalid resources data');
+                            }
+                            const addForm = document.getElementById('add-form');
+                            const studentRows = data.map(student => {
+                                return `<tr>
+                                            <td>${student.nom}</td>
+                                            <td>${student.prenom}</td>
+                                            <td><input type="number" name="notes[${student.ID_etudiant}]" min="0" max="20" step="0.01" required></td>
+                                        </tr>`;
+                            }).join('');
+                            const resourceOptions = resources.map(resource => {
+                                return `<option value="${resource.ID_ressource}" data-libelle="${resource.nom_de_la_ressource}">${resource.nom_de_la_ressource}</option>`;
+                            }).join('');
+                            addForm.innerHTML = `
+                                <form id="add-notes-form">
+                                    <label>Ressource: 
+                                        <select name="ID_ressource" required onchange="updateLibelle(this)">
+                                            <option value="">Sélectionnez une ressource</option>
+                                            ${resourceOptions}
+                                        </select>
+                                    </label>
+                                    <label>Coefficient global: <input type="number" name="coefficient_global" min="0" step="0.01" required></label>
+                                    <label>Date de l'épreuve: <input type="date" name="date_epreuve" required></label>
+                                    <input type="hidden" name="libelle" id="libelle-input">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Prénom</th>
+                                                <th>Note</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="students-list">
+                                            ${studentRows}
+                                        </tbody>
+                                    </table>
+                                    <button type="submit">Enregistrer</button>
+                                    <button type="button" onclick="closeAddForm()">Fermer</button>
+                                    <div id="success-message" class="hidden">Enregistrement réussi !</div>
+                                    <div id="error-message" class="hidden">Erreur lors de l'enregistrement.</div>
+                                </form>
+                            `;
+                            document.getElementById('add-students').classList.remove('hidden');
+
+                            document.getElementById('add-notes-form').addEventListener('submit', function(event) {
+                                event.preventDefault();
+                                const formData = new FormData(this);
+                                fetch('add_notes.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    const successMessage = document.getElementById('success-message');
+                                    const errorMessage = document.getElementById('error-message');
+                                    if (data.success) {
+                                        successMessage.classList.remove('hidden');
+                                        errorMessage.classList.add('hidden');
+                                        setTimeout(() => {
+                                            successMessage.classList.add('hidden');
+                                        }, 3000);
+                                        // Actualiser les notes après l'ajout
+                                        showNotes(currentLibelle);
+                                    } else {
+                                        successMessage.classList.add('hidden');
+                                        errorMessage.classList.remove('hidden');
+                                    }
+                                })
+                                .catch(error => {
+                                    const errorMessage = document.getElementById('error-message');
+                                    errorMessage.classList.remove('hidden');
+                                    console.error('Error adding notes:', error);
+                                });
+                            });
+                        })
+                        .catch(error => console.error('Error fetching resources:', error));
+                })
+                .catch(error => console.error('Error fetching students:', error));
+        }
+
+
+
+        function updateLibelle(select) {
+            const selectedOption = select.options[select.selectedIndex];
+            const libelleInput = document.getElementById('libelle-input');
+            if (selectedOption) {
+                const libelle = selectedOption.getAttribute('data-libelle');
+                libelleInput.value = libelle;
+            } else {
+                libelleInput.value = '';
+            }
+        }
+        function closeAddForm() {
+            document.getElementById('add-students').classList.add('hidden');
+        }
+
+        function fetchLibelles() {
+            fetch('fetch_libelles.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!Array.isArray(data)) {
+                        throw new Error('Invalid libelles data');
+                    }
+                    const notesContainer = document.querySelector('.notes');
+                    const currentLibelles = Array.from(document.querySelectorAll('.note-block')).map(block => block.dataset.libelle);
+
+                    data.forEach(libelle => {
+                        const libelleDiv = document.createElement('div');
+                        libelleDiv.className = 'note-block';
+                        libelleDiv.dataset.libelle = libelle;
+                        libelleDiv.textContent = libelle;
+                        libelleDiv.onclick = () => startAutoRefresh(libelle);
+                        notesContainer.appendChild(libelleDiv);
+
+                        // Vérifier si le libellé est déjà présent dans la page
+                        if (!currentLibelles.includes(libelle)) {
+                            // Si le libellé n'est pas dans la liste actuelle, montrer les notes
+                            if (libelle === currentLibelle) {
+                                showNotes(libelle);
+                            }
+                        }
+                    });
+
+                    // Supprimer les libellés qui ne sont plus présents dans les données
+                    Array.from(document.querySelectorAll('.note-block')).forEach(block => {
+                        if (!data.includes(block.dataset.libelle)) {
+                            block.remove();
+                        }
+                    });
+
+                    // Mettre à jour les notes si le libellé actuel est toujours présent
+                    if (currentLibelle && data.includes(currentLibelle)) {
+                        showNotes(currentLibelle);
+                    } else {
+                        // Si le libellé actuel n'est plus dans la liste, arrêter l'actualisation
+                        stopAutoRefresh();
+                    }
+                })
+                .catch(error => console.error('Error fetching libelles:', error));
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchLibelles();
+            libellesIntervalId = setInterval(fetchLibelles, 5000);
+
+            document.getElementById('add-notes-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                fetch('add_notes.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const successMessage = document.getElementById('success-message');
+                    const errorMessage = document.getElementById('error-message');
+                    if (data.success) {
+                        successMessage.classList.remove('hidden');
+                        errorMessage.classList.add('hidden');
+                        setTimeout(() => {
+                            successMessage.classList.add('hidden');
+                        }, 3000);
+                        // Actualiser les notes après l'ajout
+                        showNotes(currentLibelle);
+                    } else {
+                        successMessage.classList.add('hidden');
+                        errorMessage.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    const errorMessage = document.getElementById('error-message');
+                    errorMessage.classList.remove('hidden');
+                    console.error('Error adding notes:', error);
+                });
+            });
+
+            // Ajout de la gestion de la fonction de recherche
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+
+            searchButton.addEventListener('click', function() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+
+                // Si le terme de recherche est vide, réinitialiser l'affichage
+                if (searchTerm === '') {
+                    fetchLibelles(); // Réafficher toutes les notes
+                    return;
+                }
+
+                // Arrêter l'actualisation automatique pendant la recherche
+                clearInterval(libellesIntervalId);
+
+                // Effectuer la recherche
+                searchNotes();
+
+                // Réinitialiser l'affichage après la recherche
+                searchInput.value = ''; // Vider le champ de recherche
+            });
+        });
+
+        function searchNotes() {
+            const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const notesTable = document.getElementById('notes-table');
+            const rows = notesTable.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].getElementsByTagName('td');
+                let rowContainsSearchTerm = false;
+                
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(searchInput)) {
+                        rowContainsSearchTerm = true;
+                        break;
                     }
                 }
-                var filterContent = document.getElementById('filter-content');
-                if (filterContent.classList.contains('show')) {
-                    filterContent.classList.remove('show');
+
+                if (rowContainsSearchTerm) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
                 }
             }
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser l'actualisation des libellés au chargement de la page
+            fetchLibelles();
+            libellesIntervalId = setInterval(fetchLibelles, 5000);
+
+            // Gérer la soumission du formulaire de recherche
+            const searchButton = document.querySelector('.search-bar button');
+            searchButton.addEventListener('click', function() {
+                const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+                if (searchTerm === '') {
+                    // Réafficher toutes les notes si le terme de recherche est vide
+                    fetchLibelles();
+                } else {
+                    // Arrêter l'actualisation automatique lors de la recherche
+                    clearInterval(libellesIntervalId);
+                    stopAutoRefresh();
+                    // Effectuer la recherche
+                    searchNotes();
+                }
+            });
+
+            // Ajouter d'autres gestionnaires d'événements au besoin
+        });
+
     </script>
 </body>
 </html>

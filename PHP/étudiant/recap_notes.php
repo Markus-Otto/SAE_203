@@ -1,9 +1,33 @@
+<?php
+session_start();
+include "../page_login/fct_connection.php";
+
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
+    exit();
+}
+
+$conn = connexion();
+$username = $_SESSION['username'];
+
+// Préparer et exécuter la requête SQL pour obtenir les notes de l'utilisateur
+$sql = $conn->prepare("
+    SELECT n.notes, n.ID_etudiant, n.ID_epreuve 
+    FROM note n
+    JOIN etudiant e ON n.ID_etudiant = e.ID_etudiant
+    WHERE e.username = ?
+");
+$sql->bind_param('s', $username);
+$sql->execute();
+$result = $sql->get_result();
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>EIFFEL NOTE</title>
-    <link rel="stylesheet" type="text/css" href="../../CSS/style.css">
+    <link rel="stylesheet" type="text/css" href="../../CSS/accueil-etudiant.css">
 </head>
 <body>
     <div class="sidebar">
@@ -40,26 +64,27 @@
                 </thead>
                 <tbody>
                 <?php
-                function afficherNotesEtudiant($id_utilisateur) {
+                function afficherNotesEtudiant($username) {
                     $servername = "localhost";
-                    $username = "root";
-                    $password = "";
+                    $username_db = "root";
+                    $password_db = "";
                     $dbname = "eiffel_note_db";
-                    
-                    // Créer la chaîne DSN (Data Source Name) pour PDO
+
                     $dsn = "mysql:host=$servername;dbname=$dbname;charset=utf8";
-                    
+
                     try {
-                        // Établir une connexion à la base de données
-                        $pdo = new PDO($dsn, $username, $password);
-                        // Définir le mode d'erreur PDO sur exception
+                        $pdo = new PDO($dsn, $username_db, $password_db);
                         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                        // Préparer la requête SQL
-                        $stmt = $pdo->prepare("SELECT ID_epreuve, Coefficients, libelle, ID_ressource, date_epreuve, note FROM epreuves WHERE ID_utilisateur = ?");
-                        $stmt->execute([$id_utilisateur]);
-                        
-                        // Récupérer et afficher les résultats
+                        $stmt = $pdo->prepare("
+                            SELECT e.ID_epreuve, e.Coefficients, e.libelle, e.ID_ressource, e.date_epreuve, n.notes
+                            FROM epreuves e
+                            JOIN note n ON e.ID_epreuve = n.ID_epreuve
+                            JOIN etudiant et ON n.ID_etudiant = et.ID_etudiant
+                            WHERE et.username = ?
+                        ");
+                        $stmt->execute([$username]);
+
                         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($row['ID_epreuve']) . "</td>";
@@ -67,26 +92,17 @@
                             echo "<td>" . htmlspecialchars($row['libelle']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['ID_ressource']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['date_epreuve']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['note']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['notes']) . "</td>";
                             echo "</tr>";
                         }
                     } catch (PDOException $e) {
                         echo "<tr><td colspan='6'>Connexion échouée : " . htmlspecialchars($e->getMessage()) . "</td></tr>";
                     }
                 }
-                ?>
-
-                <?php
-                // Supposons que l'ID de l'étudiant est 1 à des fins de démonstration
-                afficherNotesEtudiant(1);
+                afficherNotesEtudiant($username);
                 ?>
                 </tbody>
             </table>
-            <div class="buttons">
-                <button>Exporter</button>
-                <button>Filtre</button>
-            </div>
         </div>
     </div>
-</body>
-</html>
+    

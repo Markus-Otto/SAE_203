@@ -1,20 +1,20 @@
 <?php
-// Connexion à la base de données
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "eiffel_note_db";
+session_start();
+include "../Admin/fnct_conn.php";
 
-try {
-    $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Sélectionner les informations de l'utilisateur à partir de la base de données
-    $stmt = $pdo->query("SELECT nom, prenom, pass FROM etudiant WHERE ID_utilisateur = 1"); // Supposons que l'ID de l'utilisateur est 1 à des fins de démonstration
-    $infosUtilisateur = $stmt->fetch(PDO::FETCH_ASSOC);
-} catch(PDOException $e) {
-    echo "Erreur de connexion : " . $e->getMessage();
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
+    exit();
 }
+
+$conn = connexion();
+$username = $_SESSION['username'];
+
+// Préparer et exécuter la requête SQL pour obtenir les informations personnelles de l'utilisateur
+$sql = $conn->prepare("SELECT nom, prenom, username, pass FROM etudiant WHERE username = ?");
+$sql->bind_param('s', $username);
+$sql->execute();
+$result = $sql->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -30,8 +30,8 @@ try {
         <div class="logo">EIFFEL NOTE</div>
         <div class="menu">
             <ul>
-                <li><a href="recap_notes.php" class="menu-item active">Récapitulatif Note</a></li>
-                <li><a href="profil_eleve.php" class="menu-item">Profil</a></li>
+                <li><a href="recap_notes.php" class="menu-item">Récapitulatif Note</a></li>
+                <li><a href="profil_eleve.php" class="menu-item active">Profil</a></li>
             </ul>
         </div>
     </div>
@@ -50,36 +50,51 @@ try {
                 <!-- Personal Information Block -->
                 <div class="block1">
                     <h2>Information personnelle</h2>
-                    <form>
-                        <table>
-                            <!-- Name Field -->
-                            <tr>
-                                <td><label for="nom">Nom:</label></td>
-                                <td><input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($infosUtilisateur['nom']); ?>" required></td>
-                            </tr>
-                            <!-- First Name Field -->
-                            <tr>
-                                <td><label for="prenom">Prénom:</label></td>
-                                <td><input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($infosUtilisateur['prenom']); ?>" required></td>
-                            </tr>
-                            <!-- Update Button -->
-                        </table>
-                    </form>
+                    <?php
+                    if ($row = $result->fetch_assoc()) {
+                        echo "<form>";
+                        echo "<table>";
+                        echo "<tr>";
+                        echo "<td><label for='nom'>Nom:</label></td>";
+                        echo "<td><input type='text' id='nom' name='nom' value='" . htmlspecialchars($row['nom']) . "' required></td>";
+                        echo "</tr>";
+                        echo "<tr>";
+                        echo "<td><label for='prenom'>Prénom:</label></td>";
+                        echo "<td><input type='text' id='prenom' name='prenom' value='" . htmlspecialchars($row['prenom']) . "' required></td>";
+                        echo "</tr>";
+                        echo "<tr>";
+                        echo "<td><label for='username'>Username:</label></td>";
+                        echo "<td><input type='text' id='username' name='username' value='" . htmlspecialchars($row['username']) . "' required></td>";
+                        echo "</tr>";
+                        echo "</table>";
+                        echo "</form>";
+                    } else {
+                        echo "Aucune information disponible.";
+                    }
+                    ?>
                 </div>
                 <div class="block1">
                     <h2>Sécurite</h2>
-                    <form>
-                        <table>
-                            <tr>
-                                <td><label for="mot_de_passe">Mot de passe:</label></td>
-                                <td><input type="text" id="mot_de_passe" name="mot_de_passe" value="<?php echo htmlspecialchars($infosUtilisateur['pass']); ?>" required></td>
-                            </tr>
-                            <!-- Update Button -->
-                        </table>
-                    </form>
+                    <?php
+                    if ($row) {
+                        echo "<form>";
+                        echo "<table>";
+                        echo "<tr>";
+                        echo "<td><label for='mot_de_passe'>Mot de passe:</label></td>";
+                        echo "<td><input type='text' id='mot_de_passe' name='mot_de_passe' value='" . htmlspecialchars($row['pass']) . "' required></td>";
+                        echo "</tr>";
+                        echo "</table>";
+                        echo "</form>";
+                    }
+                    ?>
                 </div>
             </div>
         </div>
     </div>
 </body>
 </html>
+
+<?php
+$sql->close();
+$conn->close();
+?>
