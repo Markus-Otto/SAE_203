@@ -13,5 +13,10 @@ etudiant
 Identifiant : MANLAY.T
 Mot de passe :123
 
+Partie_élève : N'a pas pu être entièrement aboutie
 
-gestion_ressource.php : Barre de recherche non fonctionelle.
+
+Page de gestion des ressources : 
+- Barre de recherche non fonctionelle.
+- Lorsque vous modifiez une ressource le pop up reste ouvert il faut juste le fermer avec la croix.
+- Lorsque vous ajoutez et supprimez le tableau se met a jour mais pour modifier il faut Actualiser d'ou le bouton.
